@@ -137,6 +137,7 @@ func newMetrics(r prometheus.Registerer) *metrics {
 	if r != nil {
 		r.MustRegister(m.requestCounter, m.requestDuration, m.responseSize)
 		registerFederationMetrics(r)
+		registerQlikMetrics(r)
 	}
 	return m
 }
@@ -386,6 +387,10 @@ func New(logger log.Logger, o *Options) *Handler {
 
 	router.Get("/federate", readyf(httputil.CompressionHandler{
 		Handler: http.HandlerFunc(h.federation),
+	}.ServeHTTP))
+
+	router.Get("/qlikMetrics", readyf(httputil.CompressionHandler{
+		Handler: http.HandlerFunc(h.qlikMetrics),
 	}.ServeHTTP))
 
 	router.Get("/consoles/*filepath", readyf(h.consoles))
